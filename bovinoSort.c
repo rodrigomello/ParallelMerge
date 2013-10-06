@@ -77,7 +77,7 @@ int main (int argc, char* argv[]){
     int *localVector, *localVector2;//Vetores locais
     int localSize, blocks, flag;
     /*Leitura do arquivo de entrada pode ser feito fora do MPI - SQN*/
-    scanf("%d",&i);
+    //scanf("%d",&i);
     MPI_Init (&argc, &argv);/* starts MPI */
     MPI_Comm_rank (MPI_COMM_WORLD, &my_rank);/* get current process id */
     MPI_Comm_size (MPI_COMM_WORLD, &procs);/* get number of processes */
@@ -90,7 +90,7 @@ int main (int argc, char* argv[]){
                 scanf("%d", &vector[j]);
             }
         }
-        
+        MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
         /*Realiza i ordenações*/
         //for(k = 0; k < i; k++){            
             startwtime = MPI_Wtime();//Inicia o relógio
@@ -98,6 +98,11 @@ int main (int argc, char* argv[]){
             localVector = (int *) malloc(localSize * sizeof(int));
             MPI_Scatter(vector, localSize, MPI_INT, localVector, localSize, MPI_INT, 0, MPI_COMM_WORLD);
             sort(localVector, 0, localSize-1);
+            printf("processo %d- ",my_rank);
+            for(j = 0; j < localSize; j++){
+                    printf("%d ", localVector[j]);
+            }
+                printf("\n");
             /*Início Merge*/
             flag = 1;
             for(blocks = 1; blocks < procs; blocks = blocks * 2){
@@ -123,7 +128,7 @@ int main (int argc, char* argv[]){
                 }
                 printf("\n");
                 printf("%.3f\n", (endwtime - startwtime)*1000);
-                scanf("%d", &i);
+                //scanf("%d", &i);
             }
             /*Fim dos resultados*/   
         //}
