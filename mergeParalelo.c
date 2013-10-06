@@ -52,12 +52,10 @@ int main(){
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-    do{
+    
         //Caso seja o processo 0 lê a quantidade de numeros e os valores 
         if(my_rank == 0){ 
             scanf("%d",&N);
-            if(N == 0)
-                break;
         
             //calcula o tamanho do vetor para cada processo para alocar memoria suficiente            
             N_local = N/comm_sz; 
@@ -126,23 +124,28 @@ int main(){
                 B = A;
                 N_local = N_local + tam;
             }
-               
-        }
+        }      
         if(my_rank == 0){
+            GET_TIME(finish);
             printf("Ordenado: ");
-            for(i = 0; i < N_local; i++)
-                if(A[i] != -1 && A[i] != 0){
-                    printf("%d ",A[i]); 
+            N_local = N/comm_sz; 
+            if (N%comm_sz) 
+                N_local++;           
+            printf("%d\n", N_local);
+
+            for(i = 0; i < N; i++){
+                if(B[i] != -1 && B[i] != 0){
+                    printf("%d ",B[i]); 
+                }else{
+                    N++;
                 }
+            }
             printf("\n");
             //marca o tempo de fim   
-            GET_TIME(finish);
             printf("tempo de execucao: %f\n", finish - start);   
+            free(A);//liberando A
         }
-    }while(N != 0);
- 
        
-    free(A);//liberando A
     MPI_Finalize(); //finalizando MPI
 
     return 0;
