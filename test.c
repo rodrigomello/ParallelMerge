@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define MAX 10000
+#define MAX 4000
 
 int main(){
 	int i, x;

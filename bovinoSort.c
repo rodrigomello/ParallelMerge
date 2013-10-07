@@ -98,26 +98,35 @@ int main (int argc, char* argv[]){
             localVector = (int *) malloc(localSize * sizeof(int));
             MPI_Scatter(vector, localSize, MPI_INT, localVector, localSize, MPI_INT, 0, MPI_COMM_WORLD);
             sort(localVector, 0, localSize-1);
+            /*
             printf("processo %d- ",my_rank);
             for(j = 0; j < localSize; j++){
                     printf("%d ", localVector[j]);
             }
                 printf("\n");
+            */
             /*Início Merge*/
             flag = 1;
             for(blocks = 1; blocks < procs; blocks = blocks * 2){
-                if(flag){
-                    if((my_rank/blocks) % 2){
-                        MPI_Send(&localVector, blocks * localSize, MPI_INT, my_rank - blocks, 1, MPI_COMM_WORLD);
-                        free(localVector);
-                        flag = 0;
+                
+                    if(my_rank % (2 * blocks)){
+                        MPI_Send(localVector, blocks * localSize, MPI_INT, my_rank - blocks, 1, MPI_COMM_WORLD);
+                    /*    
+                    printf("processo- %d SEND - ",my_rank);
+                    for(j = 0; j < localSize; j++){
+                        printf("%d ", localVector[j]);
+                    }
+                    printf("\n");
+                    */
+                    break;
                     } else{
                         localVector2 = (int *) malloc((blocks * localSize) * sizeof(int));
-                        MPI_Recv(&localVector2, blocks * localSize, MPI_INT, my_rank + blocks, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                        MPI_Recv(localVector2, blocks * localSize, MPI_INT, my_rank + blocks, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                        
                         localVector = merge(localVector, localVector2, blocks * localSize);
                         free(localVector2);
                     }
-                }
+                
             }
             /*Fim do Merge*/
             /*Exibindo resultados*/
@@ -130,6 +139,7 @@ int main (int argc, char* argv[]){
                 printf("%.3f\n", (endwtime - startwtime)*1000);
                 //scanf("%d", &i);
             }
+            free(localVector);
             /*Fim dos resultados*/   
         //}
     
